@@ -19,14 +19,15 @@ The goals / steps of this project are the following:
 
 [//]: # (Image References)
 
-[image1]: ./examples/visualization.jpg "Visualization"
-[image2]: ./examples/grayscale.jpg "Grayscaling"
-[image3]: ./examples/random_noise.jpg "Random Noise"
-[image4]: ./examples/placeholder.png "Traffic Sign 1"
-[image5]: ./examples/placeholder.png "Traffic Sign 2"
-[image6]: ./examples/placeholder.png "Traffic Sign 3"
-[image7]: ./examples/placeholder.png "Traffic Sign 4"
-[image8]: ./examples/placeholder.png "Traffic Sign 5"
+[image1]: ./images/hist_full.png "hist"
+[image2]: ./images/oneEachType.png "sample"
+[image3]: ./images/sample7.png "100imgs"
+[image4]: ./images/greyscale.png "gray"
+[image5]: ./images/accuracy_lenet_noDropOut.png "nodo"
+[image6]: ./images/tuneKeepProb.png "tune1"
+[image7]: ./images/turnBatchSize.png "tune2"
+[image8]: ./images/accuracy_lenet_08DropOut.png "model"
+[image9]: ./images/newTestImg.png "test"
 
 ## Rubric Points
 ###Here I will consider the [rubric points](https://review.udacity.com/#!/rubrics/481/view) individually and describe how I addressed each point in my implementation.  
@@ -53,6 +54,8 @@ I use `numpy` to get a basic summary of the data:
 
 ##### Bar Plots 
 
+![alt text][image1]
+
 I plot fractions of images of each Traffic sign type in the training, validation and test sets. The names of sign types are labeled on the x-axis.
 
 It appears that 
@@ -62,14 +65,17 @@ It appears that
 
 ##### Sample Image
 
+![alt text][image2]
+
 I plot one image from each sign type to get an idea what each sign look like.
 
 ##### Images from training set plotted. 
 
+![alt text][image3]
+
 I plot 100 images for the sign : speed limit (100 km/h). 
 These images vary in contrast, brightness, as well as the size of the sign.
 
-![alt text][image1]
 
 ### Design and Test a Model Architecture
 
@@ -85,7 +91,7 @@ As a first step, I decided to convert the images to greyscale because
 
 Here is an example of a traffic sign image before and after grayscaling.
 
-![alt text][image2]
+![alt text][image4]
 
 ##### Normalization
 
@@ -94,19 +100,6 @@ As a second step, I normalized the image data because after greyscaling, each pi
 ##### One-hot encoding
 
 I use one-hot encoding to convert the labels from one vector of values 0 to 42 into a sparse matrix.
-
-##### Augmentation
-I wrote up code to generate additional data because ...
-
-To add more data to the the data set, I used the following techniques because ... 
-
-Here is an example of an original image and an augmented image:
-
-![alt text][image3]
-
-The difference between the original data set and the augmented data set is the following ... 
-
-Then describe the characteristics of the augmented training set like number of images in the set, number of images for each class
 
 #### Final Model Architecture
 
@@ -138,7 +131,7 @@ My final model consisted of the following layers:
 
 I use AdamOptimizer for training. One advantage of AdamOptimizer is that it automatically adapt learning rate, making learning rate not a hyper-parameter that needs to be tuned. I use learning rate of 0.001.
 
-I use batch size of 64 and number of epochs of 30. I choose batch size of 64 because it could be fit on my personal MACBOOK air (8GB memory). I choose 30 epochs because I find the model's performance becomes stable after 30 epochs.
+I use batch size of 128 and number of epochs of 100. 
 
 I use 80% keeping rate for all the Dropout layers in my model. It might not be optimal and could be further tuned to increase the accuracy of the model.
 
@@ -149,9 +142,13 @@ Describe the approach taken for finding a solution and getting the validation se
 ##### Result
 
 My final model results were:
-* training set accuracy of 0.968.
-* validation set accuracy of 0.944. 
-* test set accuracy of 0.936.
+* training set accuracy of 0.999.
+* validation set accuracy of 0.965. 
+* test set accuracy of 0.953.
+
+The final model accuracy v.s. epochs is:
+
+![alt text][image8]
 
 ##### Approach
 
@@ -166,26 +163,27 @@ I believe it could be applied to the traffic sign classification because
 
 Besides output dimension adjustments, the main problem with the initial architecture is that it over fits our Traffic sign training data set. Here's a accuracy vs epochs graph with the LeNet-5 architecture. It shows that the training accuracy and validation accuracy both converge after about 5 epochs. The training accuracy is about 99% but the validation accuracy is below 93%. This means that the model overfits the training set.
 
-image here
+![alt text][image5]
 
 To improve the model, I add dropout layers after each convolution layer and fully connected layer. The dropout layer is a great way to avoid overfitting because it randomly sets some activations between two layers to be zero and therefore forcing the model to learn redundant representations and avoid overfitting. 
 
 ##### Parameter tuning
 
-The keeping probability in the dropout layer is tuned. I use a single batch and iterate on 30 epochs to tune the parameter because it's faster than using the full data. In this way, I could quickly get an idea which parameter will perform better.
+The keeping probability in the dropout layers is tuned. I use about 10% of the images in the training set and iterate on 50 epochs to test because it's faster than using the full data. I tried for 0.7, 0.75, 0.8, 0.85, 0.9 and found that 0.8 and 0.9 gives me the highest validation set accuracy. I choose keeping probability of 0.8.
 
+![alt text][image6]
 
+The batch size is also tuned using the same procedure. I tried for batch size of 64, 128, and 256 and found that 128 gives me the highest validation set accuracy. I therefore choose batch size of 128 in the full data training.
+
+![alt text][image7]
 
 ### Test a Model on New Images
 
 #### New Images
 
-Choose five German traffic signs found on the web and provide them in the report. For each image, discuss what quality or qualities might be difficult to classify.
+Here are 16 German traffic signs that I found on the web:
 
-Here are five German traffic signs that I found on the web:
-
-![alt text][image4] ![alt text][image5] ![alt text][image6] 
-![alt text][image7] ![alt text][image8]
+![alt text][image9]
 
 The first image might be difficult to classify because ...
 
@@ -221,11 +219,4 @@ For the first image, the model is relatively sure that this is a stop sign (prob
 | .05					| Yield											|
 | .04	      			| Bumpy Road					 				|
 | .01				    | Slippery Road      							|
-
-
-For the second image ... 
-
-### Visualizing the Neural Network 
-#### Discuss the visual output of your trained network's feature maps. What characteristics did the neural network use to make classifications?
-
 
