@@ -24,6 +24,7 @@ The goals / steps of this project are the following:
 [image7]: ./images/tuneBatchSize.png "tune2"
 [image8]: ./images/accuracy_lenet_08DropOut.png "model"
 [image9]: ./images/newTestImg.png "test"
+[image10]: ./images/topk_newTestImg_lenet_08DropOut.png "topk"
 
 
 ### Data Set Summary & Exploration
@@ -172,38 +173,77 @@ Here are 16 German traffic signs that I found on the web:
 
 ![alt text][image9]
 
-The first image might be difficult to classify because ...
+Some images might be difficult to classify because they are shot from a oblique angle and thus deforms the traffic signs slightly.
 
 #### Type Predictions
 
-Discuss the model's predictions on these new traffic signs and compare the results to predicting on the test set. At a minimum, discuss what the predictions were, the accuracy on these new predictions, and compare the accuracy to the accuracy on the test set (OPTIONAL: Discuss the results in more detail as described in the "Stand Out Suggestions" part of the rubric).
-
 Here are the results of the prediction:
 
-| Image			        |     Prediction	        					| 
-|:---------------------:|:---------------------------------------------:| 
-| Stop Sign      		| Stop sign   									| 
-| U-turn     			| U-turn 										|
-| Yield					| Yield											|
-| 100 km/h	      		| Bumpy Road					 				|
-| Slippery Road			| Slippery Road      							|
+![alt text][image10]
 
-
-The model was able to correctly guess 4 of the 5 traffic signs, which gives an accuracy of 80%. This compares favorably to the accuracy on the test set of ...
+The model was able to correctly guess 11 of the 16 traffic signs, which gives an accuracy of 68.8%. Compared with the accuracy on the test set of 95.3%, this result is not ideal.
 
 #### Probability Predictions 
 
-Describe how certain the model is when predicting on each of the five new images by looking at the softmax probabilities for each prediction. Provide the top 5 softmax probabilities for each image along with the sign type of each probability. (OPTIONAL: as described in the "Stand Out Suggestions" part of the rubric, visualizations can also be provided such as bar charts)
+I am here to discuss the 5 images that the model misclassifies. I also discuss why it's difficult for the model and how to improve.
 
-The code for making predictions on my final model is located in the 11th cell of the Ipython notebook.
-
-For the first image, the model is relatively sure that this is a stop sign (probability of 0.6), and the image does contain a stop sign. The top five soft max probabilities were
+For the first misclassified image, the model thinks it's a bumpy road sign (probability of 0.778), and only gives a probability of 0.222 to the true label of road work. The top five soft max probabilities were
 
 | Probability         	|     Prediction	        					| 
 |:---------------------:|:---------------------------------------------:| 
-| .60         			| Stop sign   									| 
-| .20     				| U-turn 										|
-| .05					| Yield											|
-| .04	      			| Bumpy Road					 				|
-| .01				    | Slippery Road      							|
+| .778         			| Bumpy Road   									| 
+| .222    				| Road Work										|
+| .0					| Traffic Signals								|
+| .0	      			| Bicycles crossing				 				|
+| .0				    | Dangerous curve to the right    				|
 
+I think the model is treating the human figure on the left as another bump as in the bumpy road sign and this means that the model needs to learn the details better.
+
+For the second misclassified image, the model thinks it's a general caution sign (probability of 0.597), and only gives a probability of 0.403 to the true label of pedestrians. The top five soft max probabilities were
+
+| Probability         	|     Prediction	        					| 
+|:---------------------:|:---------------------------------------------:| 
+| .597         			| General Caution   							| 
+| .403    				| Pedestrians									|
+| .0					| Road narrows on the right						|
+| .0	      			| Right-of-way at the next intersection			|
+| .0				    | Traffic signals    				            |
+
+I think the model recognizes the triangle outer shape of the sign but mixes the human figure with an exclamation. This also means that the model needs to learn the details better.
+
+For the third misclassified image, the model thinks it's a No passing for vehicles over 3.5 metric tons sign (probability of 0.636), and guesss it might be no passing sign (probability of 0.330). The correct label (Wild animals crossing) is not in the top 5 according to the model. The top five soft max probabilities were
+
+| Probability         	|     Prediction	        					| 
+|:---------------------:|:---------------------------------------------:| 
+| .778         			| No passing for vehicles over 3.5 metric tons	| 
+| .222    				| No passing    								|
+| .0					| Slippery Road             					|
+| .0	      			| Dangerous curve to the left					|
+| .0				    | No Entry                      				|
+
+This image is particularly difficult to predict is because it's shot from the bottom to the image and it's very different from the training set images which are mostly shot from front. I think one way for the model to improve is to augment the training set with perspective transformed images.
+
+For the fourth misclassified image, the model thinks it's definitely a No passing sign (probability of 1.). The correct label (Bumpy road) is not in the top 5 according to the model. The top five soft max probabilities were
+
+| Probability         	|     Prediction	        					| 
+|:---------------------:|:---------------------------------------------:| 
+| 1.         			| No passing                                 	| 
+| .0    				| Turn left ahead       						|
+| .0					| Ahead only                 					|
+| .0	      			| Bicycle crossing          					|
+| .0				    | No vehicles                      				|
+
+This image is particularly difficult to predict is because it's shot from the side to the image and it's very different from the training set images which are mostly shot from front. One way for the model is to improve is to augment the training set with perspective transformed images.
+
+
+For the fourth misclassified image, the model thinks it's definitely a road work sign (probability of 1.). The correct label (Ahead only) is the second most likely sign according to the model, but it has negligible probability. The top five soft max probabilities were
+
+| Probability         	|     Prediction	        					| 
+|:---------------------:|:---------------------------------------------:| 
+| 1.         			| Road Work                                 	| 
+| .0    				| Ahead only            						|
+| .0					| Speed limit (30 km/h)            				|
+| .0	      			| Speed limit (80 km/h)          		    	|
+| .0				    | Yield                          				|
+
+This image is particularly difficult to predict is because the background is noisy and the sign is relatively small. It means that the model should have been trained with images that have more noise to perform well in this noisy background.
