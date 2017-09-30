@@ -51,21 +51,37 @@ I use `numpy` to get a basic summary of the data:
 
 #### Exploratory Visualization
 
-##### Bar plots showing number of images of each Traffic sign type in the training, validation and test set in descending order from left to right. The names of sign types are labeled on the x-axis.
+##### Bar Plots 
 
-##### Images from training set plotted. I select 3 sign types and plot 100 images for each.
+I plot fractions of images of each Traffic sign type in the training, validation and test sets. The names of sign types are labeled on the x-axis.
+
+It appears that 
+
+1. The data sets don't have the same number of images in each class.
+2. But training, validation and test sets have similar proportions of each class.
+
+##### Sample Image
+
+I plot one image from each sign type to get an idea what each sign look like.
+
+##### Images from training set plotted. 
+
+I plot 100 images for the sign : speed limit (100 km/h). 
+These images vary in contrast, brightness, as well as the size of the sign.
 
 ![alt text][image1]
 
 ### Design and Test a Model Architecture
 
-provide example images
-
 #### Preprocessing
 
 ##### Grayscale
 
-As a first step, I decided to convert the images to grayscale because ...
+As a first step, I decided to convert the images to greyscale because
+
+1. Traffic signs use color, shape and text to convey their meaning. There are no two  sign types that only differ in color. Therefore, convert color into grayscale doesn't lose crucial information.
+
+2. The paper by Sermanet & LeCun reported that their model performs better by using greyscale images instead of color.
 
 Here is an example of a traffic sign image before and after grayscaling.
 
@@ -73,11 +89,14 @@ Here is an example of a traffic sign image before and after grayscaling.
 
 ##### Normalization
 
-As a second step, I normalized the image data because ...
+As a second step, I normalized the image data because after greyscaling, each pixel has value between 0 and 255. After normalization, value is between 0 and 1.
 
-##### Random Blocks
+##### One-hot encoding
 
-I decided to generate additional data because ...
+I use one-hot encoding to convert the labels from one vector of values 0 to 42 into a sparse matrix.
+
+##### Augmentation
+I wrote up code to generate additional data because ...
 
 To add more data to the the data set, I used the following techniques because ... 
 
@@ -97,22 +116,31 @@ My final model consisted of the following layers:
 
 | Layer         		|     Description	        					| 
 |:---------------------:|:---------------------------------------------:| 
-| Input         		| 32x32x3 RGB image   							| 
-| Convolution 3x3     	| 1x1 stride, same padding, outputs 32x32x64 	|
+| Input         		| 32x32x1 greyscale image   				    | 
+| Convolution 5x5     	| 1x1 stride, valid padding, outputs 28x28x6 	|
 | RELU					|												|
-| Max pooling	      	| 2x2 stride,  outputs 16x16x64 				|
-| Convolution 3x3	    | etc.      									|
-| Fully connected		| etc.        									|
-| Softmax				| etc.        									|
-|						|												|
-|						|												|
+| Max pooling	      	| 2x2 stride,  outputs 14x14x6 			    	|
+| Dropout				| keep_prob = 0.8								|
+| Convolution 5x5     	| 1x1 stride, valid padding, outputs 10x10x16 	|
+| RELU					|												|
+| Max pooling	      	| 2x2 stride,  outputs 5x5x6 			    	|
+| Dropout				| keep_prob = 0.8								|
+| Fully connected		| outputs 120        							|
+| RELU					|												|
+| Dropout				| keep_prob = 0.8								|
+| Fully connected		| outputs 84        							|
+| RELU					|												|
+| Dropout				| keep_prob = 0.8								|
+| Output				| outputs 43   			    					|
  
 
 #### Training the Model 
 
-include the type of optimizer, the batch size, number of epochs and any hyperparameters such as learning rate.
+I use AdamOptimizer for training. One advantage of AdamOptimizer is that it automatically adapt learning rate, making learning rate not a hyper-parameter that needs to be tuned. I use learning rate of 0.001.
 
-To train the model, I used an ....
+I use batch size of 64 and number of epochs of 30. I choose batch size of 64 because it could be fit on my personal MACBOOK air (8GB memory). I choose 30 epochs because I find the model's performance becomes stable after 30 epochs.
+
+I use 80% keeping rate for all the Dropout layers in my model. It might not be optimal and could be further tuned to increase the accuracy of the model.
 
 #### Result & Approach
 
@@ -121,24 +149,32 @@ Describe the approach taken for finding a solution and getting the validation se
 ##### Result
 
 My final model results were:
-* training set accuracy of ?
-* validation set accuracy of ? 
-* test set accuracy of ?
+* training set accuracy of 0.968.
+* validation set accuracy of 0.944. 
+* test set accuracy of 0.936.
 
 ##### Approach
 
-If an iterative approach was chosen:
-* What was the first architecture that was tried and why was it chosen?
+
+I choose the LeNet-5 architecture. 
+
+I believe it could be applied to the traffic sign classification because
+
+1. It has two convolution layers which could pick up increasingly higher level patterns of the traffic sign images. Convolution layers could work well with traffic signs because both the outer shape (circle or triangle) and the details (simbols, words) of a traffic sign provides important information. ConvNets are good at capturing patterns across a set of training sets with different brightness, contrast, size so the model will learn the features to identify each sign.
+
+2. It succeeded in identifying the digits in the MNIST database. And handwritten digits and traffic sign have similarities in that they are simple symbols with not too complicated shapes.
+
+Besides output dimension adjustments, the main problem with the initial architecture is that it over fits our Traffic sign training data set. Here's a accuracy vs epochs graph with the LeNet-5 architecture. It shows that the training accuracy and validation accuracy both converge after about 5 epochs. The training accuracy is about 99% but the validation accuracy is below 93%. This means that the model overfits the training set.
+
+image here
+
+To improve the model, I add dropout layers after each convolution layer and fully connected layer. The dropout layer is a great way to avoid overfitting because it randomly sets some activations between two layers to be zero and therefore forcing the model to learn redundant representations and avoid overfitting. 
+
+##### Parameter tuning
+
+The keeping probability in the dropout layer is tuned. I use a single batch and iterate on 30 epochs to tune the parameter because it's faster than using the full data. In this way, I could quickly get an idea which parameter will perform better.
 
 
-If a well known architecture was chosen:
-* What architecture was chosen?
-* Why did you believe it would be relevant to the traffic sign application?
-* What were some problems with the initial architecture?
-* How was the architecture adjusted and why was it adjusted? Typical adjustments could include choosing a different model architecture, adding or taking away layers (pooling, dropout, convolution, etc), using an activation function or changing the activation function. One common justification for adjusting an architecture would be due to overfitting or underfitting. A high accuracy on the training set but low accuracy on the validation set indicates over fitting; a low accuracy on both sets indicates under fitting.
-* Which parameters were tuned? How were they adjusted and why?
-* What are some of the important design choices and why were they chosen? For example, why might a convolution layer work well with this problem? How might a dropout layer hel
-* How does the final model's accuracy on the training, validation and test set provide evidence that the model is working well?
 
 ### Test a Model on New Images
 
